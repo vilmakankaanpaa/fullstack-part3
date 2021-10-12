@@ -1,4 +1,3 @@
-const { response } = require('express')
 const express = require('express')
 const app = express()
 app.use(express.json())
@@ -34,6 +33,7 @@ app.get('/info', (request, response) => {
 })
 
 app.get('/api/persons', (request, response) => {
+	console.log('getting all persons');
   response.json(persons)
 })
 
@@ -51,8 +51,33 @@ app.get('/api/persons/:id', (request, response) => {
 app.delete('/api/persons/:id', (request, response) => {
   const id = Number(request.params.id)
   persons = persons.filter(person => person.id !== id)
-	response.statusMessage = 'Person removed'
   response.status(204).end()
+})
+
+app.post('/api/persons', (request, response) => {
+  const body = request.body
+
+  if (!body.name) {
+    return response.status(400).json({ 
+      error: 'name missing' 
+    })
+  }
+
+	if (!body.number) {
+    return response.status(400).json({ 
+      error: 'number missing' 
+    })
+  }
+
+  const person = {
+    name: body.name,
+    number: body.number,
+    id: Math.floor(Math.random()*1000)
+  }
+
+  persons = persons.concat(person)
+
+  response.json(person)
 })
 
 const PORT = 3001
