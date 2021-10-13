@@ -1,9 +1,13 @@
 const express = require('express')
 const app = express()
 const morgan = require('morgan')
+const uuid = require('node-uuid')
+
 app.use(express.json())
 
-app.use(morgan('tiny'))
+morgan.token('person', function (req) {
+  return req.person
+})
 
 let persons = [
 	{ 
@@ -56,6 +60,14 @@ app.delete('/api/persons/:id', (request, response) => {
   persons = persons.filter(person => person.id !== id)
   response.status(204).end()
 })
+
+app.use(assignPerson)
+app.use(morgan(':method :url :response-time :person'))
+
+function assignPerson (req, res, next) {
+  req.person = JSON.stringify(req.body)
+  next()
+}
 
 app.post('/api/persons', (request, response) => {
   const body = request.body
