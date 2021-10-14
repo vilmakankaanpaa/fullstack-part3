@@ -14,10 +14,12 @@ morgan.token('person', function (req) {
 })
 
 app.get('/info', (request, response) => {
-	const info = 
-	`Phonebook has info for ${persons.length} people. ` +
-	`Current datetime is: ${new Date()}`
-	response.json(info)
+	Person.countDocuments({}, function (err, count) {		
+		const info = 
+		`Phonebook has info for ${count} people. ` +
+		`Current datetime is: ${new Date()}`
+		response.json(info)
+	})
 })
 
 app.get('/api/persons', (request, response) => {
@@ -73,7 +75,7 @@ app.post('/api/persons', (request, response) => {
 
   const person = new Person({
     name: body.name,
-    number: body.number,
+    number: body.number
   })
 
   person.save().then(savedPerson => {
