@@ -26,15 +26,16 @@ app.get('/api/persons', (request, response) => {
 	})
 })
 
-app.get('/api/persons/:id', (request, response) => {
-  const id = Number(request.params.id)
-  const person = persons.find(person => person.id === id)
-
-  if (person) {
-    response.json(person)
-  } else {
-    response.status(404).end()
-  }
+app.get('/api/persons/:id', (request, response, next) => {
+  Person.findById(request.params.id)
+    .then(person => {
+      if (person) {
+        response.json(person)
+      } else {
+        response.status(404).end()
+      }
+    })
+    .catch(error => next(error))
 })
 
 app.delete('/api/persons/:id', (request, response, next) => {
@@ -56,13 +57,13 @@ function assignPerson (req, res, next) {
 app.post('/api/persons', (request, response) => {
   const body = request.body
 
-	if (body.name === undefined) {
-    return response.status(400).json({ error: 'name missing' })
-  }
+	// if (body.name.length === 0) {
+  //   return response.status(400).json({ error: 'name missing' })
+  // }
 
-  if (body.number === undefined) {
-    return response.status(400).json({ error: 'number missing' })
-  }
+  // if (body.number.length === 0) {
+  //   return response.status(400).json({ error: 'number missing' })
+  // }
 
 	// if (persons.find(person => person.name === body.name)) {
 	// 	return response.status(400).json({ 
@@ -79,6 +80,26 @@ app.post('/api/persons', (request, response) => {
     response.json(savedPerson)
   })
 })
+
+// Defining middleware that will not be used in the routes but will be
+// run if none of the routes handle the request
+const unknownEndpoint = (request, response) => {
+  response.status(404).send({ error: 'unknown endpoint' })
+}
+
+app.use(unknownEndpoint)
+
+const errorHandler = (error, request, response, next) => {
+  console.error(error.message)
+
+  if (error.name === 'CastError') {
+    return response.status(400).send({ error: 'malformatted id' })
+  } 
+
+  next(error)
+}
+
+app.use(errorHandler)
 
 const PORT = process.env.PORT
 app.listen(PORT)
