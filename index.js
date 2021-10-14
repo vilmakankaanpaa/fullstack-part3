@@ -13,29 +13,6 @@ morgan.token('person', function (req) {
   return req.person
 })
 
-// let persons = [
-// 	{ 
-// 		id: 1,
-// 		name: "Arto Hellas", 
-// 		number: "040-123456"
-// 	},
-// 	{ 
-// 		id: 2,
-// 		name: "Ada Lovelace", 
-// 		number: "39-44-5323523"
-// 	},
-// 	{ 
-// 		id: 3,
-// 		name: "Dan Abramov", 
-// 		number: "12-43-234345"
-// 	},
-// 	{ 
-// 		id: 4,
-// 		name: "Mary Poppendieck", 
-// 		number: "39-23-6423122"
-// 	}
-// ]
-
 app.get('/info', (request, response) => {
 	const info = 
 	`Phonebook has info for ${persons.length} people. ` +
@@ -77,33 +54,28 @@ function assignPerson (req, res, next) {
 app.post('/api/persons', (request, response) => {
   const body = request.body
 
-  if (!body.name) {
-    return response.status(400).json({ 
-      error: 'name missing' 
-    })
+	if (body.name === undefined) {
+    return response.status(400).json({ error: 'name missing' })
   }
 
-	if (!body.number) {
-    return response.status(400).json({ 
-      error: 'number missing' 
-    })
+  if (body.number === undefined) {
+    return response.status(400).json({ error: 'number missing' })
   }
 
-	if (persons.find(person => person.name === body.name)) {
-		return response.status(400).json({ 
-      error: 'name must be unique' 
-    })
-	}
+	// if (persons.find(person => person.name === body.name)) {
+	// 	return response.status(400).json({ 
+  //     error: 'name must be unique' 
+  //   })
+	// }
 
-  const person = {
+  const person = new Person({
     name: body.name,
     number: body.number,
-    id: Math.floor(Math.random()*1000)
-  }
+  })
 
-  persons = persons.concat(person)
-
-  response.json(person)
+  person.save().then(savedPerson => {
+    response.json(savedPerson)
+  })
 })
 
 const PORT = process.env.PORT
