@@ -14,18 +14,18 @@ morgan.token('person', function (req) {
 })
 
 app.get('/info', (request, response) => {
-	Person.countDocuments({}, function (err, count) {		
-		const info = 
+  Person.countDocuments({}, function (err, count) {
+    const info =
 		`Phonebook has info for ${count} people. ` +
 		`Current datetime is: ${new Date()}`
-		response.json(info)
-	})
+    response.json(info)
+  })
 })
 
 app.get('/api/persons', (request, response) => {
   Person.find({}).then(person => {
     response.json(person)
-	})
+  })
 })
 
 app.get('/api/persons/:id', (request, response, next) => {
@@ -42,9 +42,7 @@ app.get('/api/persons/:id', (request, response, next) => {
 
 app.delete('/api/persons/:id', (request, response, next) => {
   Person.findByIdAndRemove(request.params.id)
-    .then(result => {
-      response.status(204).end()
-    })
+    .then(response.status(204).end())
     .catch(error => next(error))
 })
 
@@ -76,11 +74,11 @@ app.put('/api/persons/:id', (request, response, next) => {
     name: body.name,
     number: body.number,
   }
-	
-	const opts = {
-		new: true,
-		runValidators: true
-	}
+
+  const opts = {
+    new: true,
+    runValidators: true
+  }
   Person.findByIdAndUpdate(request.params.id, person, opts)
     .then(updatedPerson => {
       response.json(updatedPerson)
@@ -101,9 +99,9 @@ const errorHandler = (error, request, response, next) => {
 
   if (error.name === 'CastError') {
     return response.status(400).send({ error: 'malformatted id' })
-	} else if (error.name === 'ValidationError') {
+  } else if (error.name === 'ValidationError') {
     return response.status(400).json({ error: error.message })
-	}
+  }
 
   next(error)
 }
